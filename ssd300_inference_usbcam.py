@@ -20,6 +20,7 @@ from data_generator.object_detection_2d_photometric_ops import ConvertTo3Channel
 from data_generator.object_detection_2d_geometric_ops import Resize
 from data_generator.object_detection_2d_misc_utils import apply_inverse_transforms
 import random
+import datetime # to calcurate processing time
 
 # Set the image size.
 img_height = 300
@@ -74,7 +75,9 @@ def process_image(img):
     resized = cv2.resize(img, (img_height, img_width))
     expanded = np.expand_dims(resized, 0)
     # predict
+    start = datetime.datetime.now() # calc processing time
     y_pred = model.predict(expanded)
+    print("processing time: {:.2} [fps]".format(1/(datetime.datetime.now() - start).total_seconds())) # print processing time
     # filter results
     confidence_threshold = 0.5
     y_pred_thresh = [y_pred[k][y_pred[k,:,1] > confidence_threshold]

@@ -1,4 +1,3 @@
-Original readme is [here](README-Master.md)
 ## SSD: Single-Shot MultiBox Detector implementation in Keras
 ---
 ### Contents
@@ -12,6 +11,8 @@ Original readme is [here](README-Master.md)
 7. [Download the original trained model weights](#download-the-original-trained-model-weights)
 8. [How to fine-tune one of the trained models on your own dataset](#how-to-fine-tune-one-of-the-trained-models-on-your-own-dataset)
 9. [ToDo](#todo)
+10. [Important notes](#important-notes)
+11. [Terminology](#terminology)
 
 ### Overview
 
@@ -132,13 +133,6 @@ Below are some prediction examples of the fully trained original SSD300 "07+12" 
 | ![img01](./examples/trained_ssd300_pascalVOC2007_test_pred_05_no_gt.png) | ![img01](./examples/trained_ssd300_pascalVOC2007_test_pred_04_no_gt.png) |
 | ![img01](./examples/trained_ssd300_pascalVOC2007_test_pred_01_no_gt.png) | ![img01](./examples/trained_ssd300_pascalVOC2007_test_pred_02_no_gt.png) |
 
-And some pictures from my smart-phone are predicted:
-
-| | |
-|---|---|
-| ![img01](./examples/andy.png) | ![img01](./examples/snowboarding.png) |
-| ![img01](./examples/passat.png) | ![img01](./examples/night.png) |
-
 Here are some prediction examples of an SSD7 (i.e. the small 7-layer version) partially trained on two road traffic datasets released by [Udacity](https://github.com/udacity/self-driving-car/tree/master/annotations) with roughly 20,000 images in total and 5 object categories (more info in [`ssd7_training.ipynb`](ssd7_training.ipynb)). The predictions you see below were made after 10,000 training steps at batch size 32. Admittedly, cars are comparatively easy objects to detect and I picked a few of the better examples, but it is nonetheless remarkable what such a small model can do after only 10,000 training iterations.
 
 | | |
@@ -148,14 +142,14 @@ Here are some prediction examples of an SSD7 (i.e. the small 7-layer version) pa
 
 ### Dependencies
 
-* Python 3.x (NY: 3.5.2)
-* Numpy (NY: 1.14.3)
-* TensorFlow 1.x (NY: 1.8)
-* Keras 2.x (NY: 2.1.6)
-* OpenCV (NY: 3.1.0)
-* Beautiful Soup 4.x (NY: 4.6.0)
+* Python 3.x
+* Numpy
+* TensorFlow 1.x
+* Keras 2.x
+* OpenCV
+* Beautiful Soup 4.x
 
-`NY` is my environment as example. The Theano and CNTK backends are currently not supported.
+The Theano and CNTK backends are currently not supported.
 
 Python 2 compatibility: This implementation seems to work with Python 2.7, but I don't provide any support for it. It's 2018 and nobody should be using Python 2 anymore.
 
@@ -260,3 +254,13 @@ The following things are on the to-do list, ranked by priority. Contributions ar
 Currently in the works:
 
 * A new [Focal Loss](https://arxiv.org/abs/1708.02002) loss function.
+
+### Important notes
+
+* All trained models that were trained on MS COCO use the smaller anchor box scaling factors provided in all of the Jupyter notebooks. In particular, note that the '07+12+COCO' and '07++12+COCO' models use the smaller scaling factors.
+
+### Terminology
+
+* "Anchor boxes": The paper calls them "default boxes", in the original C++ code they are called "prior boxes" or "priors", and the Faster R-CNN paper calls them "anchor boxes". All terms mean the same thing, but I slightly prefer the name "anchor boxes" because I find it to be the most descriptive of these names. I call them "prior boxes" or "priors" in `keras_ssd300.py` and `keras_ssd512.py` to stay consistent with the original Caffe implementation, but everywhere else I use the name "anchor boxes" or "anchors".
+* "Labels": For the purpose of this project, datasets consist of "images" and "labels". Everything that belongs to the annotations of a given image is the "labels" of that image: Not just object category labels, but also bounding box coordinates. "Labels" is just shorter than "annotations". I also use the terms "labels" and "targets" more or less interchangeably throughout the documentation, although "targets" means labels specifically in the context of training.
+* "Predictor layer": The "predictor layers" or "predictors" are all the last convolution layers of the network, i.e. all convolution layers that do not feed into any subsequent convolution layers.
