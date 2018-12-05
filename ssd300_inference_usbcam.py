@@ -52,7 +52,7 @@ model = ssd_300(image_size=(img_height, img_width, 3),
                 top_k=200,
                 nms_max_output_size=400)
 # 2: Load the trained weights into the model.
-weights_path = '../Model/SSD-keras/VGG_VOC0712_SSD_300x300_iter_120000.h5'
+weights_path = '../Model/VGG_VOC0712Plus_SSD_300x300_ft_iter_160000.h5'
 model.load_weights(weights_path, by_name=True)
 
 # 3: Compile the model so that Keras won't complain the next time you load it.
@@ -77,7 +77,7 @@ def process_image(img):
     # predict
     start = datetime.datetime.now() # calc processing time
     y_pred = model.predict(expanded)
-    print("processing time: {:.2} [fps]".format(1/(datetime.datetime.now() - start).total_seconds())) # print processing time
+    print("processing time: {:.1f} [fps]".format(1/(datetime.datetime.now() - start).total_seconds())) # print processing time
     # filter results
     confidence_threshold = 0.5
     y_pred_thresh = [y_pred[k][y_pred[k,:,1] > confidence_threshold]
