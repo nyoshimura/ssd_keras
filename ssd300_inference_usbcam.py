@@ -4,21 +4,10 @@
 import cv2
 from keras import backend as K
 from keras.models import load_model
-from keras.preprocessing import image
 from keras.optimizers import Adam
-from imageio import imread
 import numpy as np
 from models.keras_ssd300 import ssd_300
 from keras_loss_function.keras_ssd_loss import SSDLoss
-from keras_layers.keras_layer_AnchorBoxes import AnchorBoxes
-from keras_layers.keras_layer_DecodeDetections import DecodeDetections
-from keras_layers.keras_layer_DecodeDetectionsFast import DecodeDetectionsFast
-from keras_layers.keras_layer_L2Normalization import L2Normalization
-from ssd_encoder_decoder.ssd_output_decoder import decode_detections, decode_detections_fast
-from data_generator.object_detection_2d_data_generator import DataGenerator
-from data_generator.object_detection_2d_photometric_ops import ConvertTo3Channels
-from data_generator.object_detection_2d_geometric_ops import Resize
-from data_generator.object_detection_2d_misc_utils import apply_inverse_transforms
 import random
 import datetime # to calcurate processing time
 
@@ -71,6 +60,12 @@ classes = ['background',
 colors = [(random.randint(0,255), random.randint(0,255), random.randint(0,255)) for i in range(len(classes))]
 
 def process_image(img):
+    # initial setting
+    height, width = img.shape[:2] # obtain size info
+    debug_space = cv2.resize(np.zeros((1, 1, 3), np.uint8), (width, height)) # create debug space
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(debug_space, 'size: '+str(height)+'x'+str(width),(0, height//10), font, 0.8, (0,255,0),1) # debug
+
     # pre-processing
     resized = cv2.resize(img, (img_height, img_width))
     expanded = np.expand_dims(resized, 0)
@@ -78,6 +73,8 @@ def process_image(img):
     start = datetime.datetime.now() # calc processing time
     y_pred = model.predict(expanded)
     print("processing time: {:.1f} [fps]".format(1/(datetime.datetime.now() - start).total_seconds())) # print processing time
+    cv2.putText(debug_space, "processing time: {:.1f} [fps]".format(1/(datetime.datetime.now() - start).total_seconds()),
+    (0, height//5), font, 0.8, (0,255,0),1)
     # filter results
     confidence_threshold = 0.5
     y_pred_thresh = [y_pred[k][y_pred[k,:,1] > confidence_threshold]
@@ -94,7 +91,8 @@ def process_image(img):
         label = '{}: {:.2f}'.format(classes[int(box[0])], box[1])
         cv2.rectangle(img, (xmin, ymin), (xmax, ymax), color, 3)
         cv2.putText(img, label, (xmin, ymin+25), cv2.FONT_HERSHEY_PLAIN, 2, color, 5)
-    result = img
+    #result = img
+    result = np.concatenate((img, debug_space), axis=1) # concat result and debug space
     return result
 ####################################################
 
